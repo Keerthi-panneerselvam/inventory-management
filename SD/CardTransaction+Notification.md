@@ -96,3 +96,143 @@ Card tap → Visa → Wise Backend → Kafka
 ```
 
 **Practice saying this out loud 3 times. Time yourself — should be under 4 minutes.** 🚀
+
+## Clarifying Questions — Card Transaction + Notification
+
+### The 5 Questions to Ask (Pick 3):
+
+**Question 1 — Latency:**
+> "How quickly should the notification appear after the card tap — are we targeting sub-second delivery?"
+
+**Why ask this:** Shows you think about performance requirements upfront. Their answer determines whether you design for push (sub-second) or polling (acceptable delay).
+
+**Question 2 — Foreground vs Background:**
+> "Should the notification behave differently when the app is open versus in the background?"
+
+**Why ask this:** Shows you understand iOS notification architecture. Foreground = in-app banner with haptic. Background = rich system notification with merchant logo. Two completely different code paths.
+
+**Question 3 — Multi-Currency:**
+> "Should I handle multi-currency — card charged in EUR but balance is SGD? Should we show both amounts?"
+
+**Why ask this:** Shows domain expertise — you know this is a real problem for Wise's global card product. Also lets you bring up your BFX experience naturally.
+
+**Question 4 — Amount Finality:**
+> "Is the transaction amount always final, or can it change — like restaurants with tips or hotels with incidentals?"
+
+**Why ask this:** Shows you understand card processing. Authorization amount ≠ settlement amount. This affects whether you show "Pending" status and how you handle amount updates.
+
+**Question 5 — Scope:**
+> "Should I focus on the mobile architecture, or include the backend event flow as well? And should I start with the happy path first?"
+
+**Why ask this:** Shows you manage scope. Gets their guidance on how deep to go. The answer is usually "start with happy path, we'll add complexity."
+
+---
+
+## Universal Clarifying Questions — ANY Scenario
+
+### Memorize This Framework: **U.L.E.S.S**
+
+```
+U — USER JOURNEY
+    "What does the customer see step by step?"
+    "What triggers this flow?"
+
+L — LATENCY / PERFORMANCE
+    "What's the expected response time?"
+    "Should this feel instant?"
+
+E — EDGE CASES
+    "What happens when [something fails]?"
+    "What about [unusual case]?"
+
+S — SCOPE
+    "Mobile only or include backend?"
+    "iOS only or both platforms?"
+    "Happy path first?"
+
+S — SECURITY / COMPLIANCE
+    "Any regulatory constraints?"
+    "Should this require biometric auth?"
+```
+
+### Applied to Each Scenario:
+
+**Card Transaction + Notification:**
+```
+U → "Foreground vs background — different notification experience?"
+L → "Sub-second delivery from card tap?"
+E → "Amount can change? (tips, hotels)"
+S → "Mobile architecture, or include Kafka event flow?"
+S → "Multi-currency — show both amounts?"
+```
+
+**3DS Authentication:**
+```
+U → "Push notification → approve in app? Or also support SMS OTP fallback?"
+L → "What's the expiry window — 5 minutes?"
+E → "What if the phone is offline when push arrives?"
+S → "Should I design the full flow or focus on the mobile approval screen?"
+S → "Should approval require biometric auth?"
+```
+
+**Card Ordering:**
+```
+U → "Virtual and physical? Different flows after confirmation?"
+L → "Virtual card — instantly available or activation delay?"
+E → "What if delivery address is invalid? What if user cancels midway?"
+S → "Should I include Apple Wallet integration?"
+S → "Different address fields per country — Dynamic Forms?"
+```
+
+**Bill Split:**
+```
+U → "Split with Wise users only, or non-Wise users too?"
+L → "Real-time tracking when friends pay?"
+E → "What if someone declines? What about rounding?"
+S → "Equal split only or also custom amounts?"
+S → "Should non-Wise users pay via link? Any fees?"
+```
+
+**Recurring Payments:**
+```
+U → "Detect automatically or user tags them manually?"
+L → "Notify before each charge?"
+E → "What if amount varies slightly each month (usage-based)?"
+S → "Just display, or also allow blocking merchants?"
+S → "Spend controls integration?"
+```
+
+**Dispute / Chargeback:**
+```
+U → "What dispute reasons do we support?"
+L → "How quickly should provisional credit appear?"
+E → "What if the customer uploads evidence and goes offline?"
+S → "Should I include the tracking flow or just the filing flow?"
+S → "Any regulatory timeline requirements? (120 days?)"
+```
+
+---
+
+## The 3 Questions That Work for ANY Scenario
+
+If you blank on what to ask, these always work:
+
+**1.** > "What does the customer see step by step — can you walk me through the user journey?"
+
+Shows product thinking. Gets them talking so you understand the full flow.
+
+**2.** > "What's the most critical non-functional requirement — speed, reliability, or consistency?"
+
+Shows you think about trade-offs. Their answer guides your architecture.
+
+**3.** > "Should I start with the happy path and handle edge cases after, or do you want me to cover error handling upfront?"
+
+Shows you manage scope. Answer is always "happy path first" — but asking demonstrates maturity.
+
+---
+
+## What to SAY After They Answer:
+
+> "Great, that helps me scope this. Let me start with the customer journey, then I'll design the VIPER architecture that makes it happen."
+
+**Then go straight into your user journey → high-level flow → VIPER module.** Don't ask more than 3 questions — spending 5 minutes on questions without drawing anything is worse than starting with 2 good questions and adapting as you go. 🚀
